@@ -26,17 +26,20 @@ export default function App() {
       .then(({ data }) => { if (data?.[0]) setPoidsDepart(data[0].weight) })
     const eau = localStorage.getItem('eau_' + today)
     if (eau) setVerres(parseInt(eau))
-    const seance = localStorage.getItem('seance_' + today)
-    if (seance) setSeanceFaite(true)
+    supabase.from('workouts').select('*').eq('date', today).limit(1)
+      .then(({ data }) => { if (data?.[0]) setSeanceFaite(true) })
   }, [])
 
-  const toggleSeance = (e) => {
+  const toggleSeance = async (e) => {
     e.stopPropagation()
     if (seanceFaite) {
-      localStorage.removeItem('seance_' + today)
+      await supabase.from('workouts').delete().eq('date', today)
       setSeanceFaite(false)
     } else {
-      localStorage.setItem('seance_' + today, 'true')
+      await supabase.from('workouts').insert({
+        date: today,
+        type: focusSport[aujourdhui],
+      })
       setSeanceFaite(true)
     }
   }
@@ -123,30 +126,30 @@ export default function App() {
         </div>
 
         <div className="bottom-cell">
-  <div className="bottom-cell-label">Cette semaine</div>
-  <div className="bottom-cell-days">
-    {['L', 'M', 'M', 'J', 'V'].map((j, i) => {
-      const jourIndex = i + 1
-      const estAujourdhui = aujourdhui === jourIndex
-      const estFait = estAujourdhui ? seanceFaite : false
-      return (
-        <div key={i} className={`bottom-cell-day ${estFait ? 'done' : ''}`}>
-          {j}
+          <div className="bottom-cell-label">Cette semaine</div>
+          <div className="bottom-cell-days">
+            {['L', 'M', 'M', 'J', 'V'].map((j, i) => {
+              const jourIndex = i + 1
+              const estAujourdhui = aujourdhui === jourIndex
+              const estFait = estAujourdhui ? seanceFaite : false
+              return (
+                <div key={i} className={`bottom-cell-day ${estFait ? 'done' : ''}`}>
+                  {j}
+                </div>
+              )
+            })}
+          </div>
+          <div className="bottom-cell-sub" style={{color: seanceFaite ? 'var(--green)' : 'var(--text3)'}}>
+            {seanceFaite ? 'Séance du jour validée' : 'Séance non validée'}
+          </div>
+          <button
+            className="btn"
+            style={{marginTop: '1rem', fontSize: '10px', padding: '0.5rem 1rem'}}
+            onClick={toggleSeance}
+          >
+            {seanceFaite ? 'Annuler' : 'Valider la séance'}
+          </button>
         </div>
-      )
-    })}
-  </div>
-  <div className="bottom-cell-sub" style={{color: seanceFaite ? 'var(--green)' : 'var(--text3)'}}>
-    {seanceFaite ? 'Séance du jour validée' : 'Séance non validée'}
-  </div>
-  <button
-    className="btn"
-    style={{marginTop: '1rem', fontSize: '10px', padding: '0.5rem 1rem'}}
-    onClick={toggleSeance}
-  >
-    {seanceFaite ? 'Annuler' : 'Valider la séance'}
-  </button>
-</div>
       </div>
     </div>
   )
