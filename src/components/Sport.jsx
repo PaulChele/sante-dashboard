@@ -65,7 +65,15 @@ export default function Sport({ onBack }) {
                 <span className="bloc-nom">{bloc.nom}</span>
                 <span className="bloc-tag">{bloc.type}</span>
               </div>
-              {ouvert === i && <div className="bloc-desc">{bloc.exercices}</div>}
+              {ouvert === i && (
+  <div className="bloc-desc">
+    {bloc.exercices.split(', ').map((ex, j) => (
+      <div key={j} style={{padding: '0.25rem 0', borderBottom: '1px solid #1e1e1e'}}>
+        {ex}
+      </div>
+    ))}
+  </div>
+)}
             </div>
           ))}
         </div>

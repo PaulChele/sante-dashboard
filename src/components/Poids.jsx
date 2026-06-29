@@ -7,6 +7,7 @@ const OBJECTIF = 75
 export default function Poids({ onBack }) {
   const [data, setData] = useState([])
   const [poids, setPoids] = useState('')
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -32,7 +33,7 @@ export default function Poids({ onBack }) {
     if (!poids) return
     setSaving(true)
     await supabase.from('weights').insert({
-      date: new Date().toISOString().split('T')[0],
+      date: date,
       weight: parseFloat(poids),
     })
     setPoids('')
@@ -109,7 +110,7 @@ export default function Poids({ onBack }) {
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">Date</label>
-                <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
+                <input type="date" value={date} onChange={e => setDate(e.target.value)} />
               </div>
               <div className="form-group">
                 <label className="form-label">Poids (kg)</label>
