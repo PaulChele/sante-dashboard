@@ -12,6 +12,7 @@ export default function App() {
   const [poidsDepart, setPoidsDepart] = useState(null)
   const [verres, setVerres] = useState(0)
   const [seanceFaite, setSeanceFaite] = useState(false)
+  const [dernierSommeil, setDernierSommeil] = useState(null)
 
   const aujourdhui = new Date().getDay()
   const today = new Date().toISOString().split('T')[0]
@@ -28,6 +29,8 @@ export default function App() {
     if (eau) setVerres(parseInt(eau))
     supabase.from('workouts').select('*').eq('date', today).limit(1)
       .then(({ data }) => { if (data?.[0]) setSeanceFaite(true) })
+    supabase.from('sleep').select('*').order('date', { ascending: false }).limit(1)
+      .then(({ data }) => { if (data?.[0]) setDernierSommeil(data[0].duration) })
   }, [])
 
   const toggleSeance = async (e) => {
@@ -120,8 +123,8 @@ export default function App() {
 
         <div className="bottom-cell" onClick={() => setPage('sommeil')}>
           <div className="bottom-cell-label">Sommeil</div>
-          <div className="bottom-cell-value">— <span className="bottom-cell-unit">h</span></div>
-          <div className="bottom-cell-sub">cette nuit</div>
+          <div className="bottom-cell-value">{dernierSommeil ? dernierSommeil : '—'} <span className="bottom-cell-unit">h</span></div>
+          <div className="bottom-cell-sub">dernière nuit</div>
           <div className="bottom-cell-arrow">Enregistrer →</div>
         </div>
 
