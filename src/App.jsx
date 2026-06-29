@@ -11,11 +11,12 @@ export default function App() {
   const [dernierPoids, setDernierPoids] = useState(null)
   const [poidsDepart, setPoidsDepart] = useState(null)
   const [verres, setVerres] = useState(0)
+  const [seanceFaite, setSeanceFaite] = useState(false)
 
   const aujourdhui = new Date().getDay()
+  const today = new Date().toISOString().split('T')[0]
   const focusSport = { 1: 'Hamstring', 2: 'Dos', 3: 'Épaules / Fessiers', 4: 'Jambes', 5: 'Poitrine', 6: 'Marche', 0: 'Repos' }
   const kcalSport = { 1: 380, 2: 360, 3: 390, 4: 420, 5: 370, 6: 150, 0: 0 }
-  const joursSemaine = ['L', 'M', 'M', 'J', 'V']
   const OBJECTIF = 75
 
   useEffect(() => {
@@ -23,9 +24,22 @@ export default function App() {
       .then(({ data }) => { if (data?.[0]) setDernierPoids(data[0].weight) })
     supabase.from('weights').select('*').order('date', { ascending: true }).limit(1)
       .then(({ data }) => { if (data?.[0]) setPoidsDepart(data[0].weight) })
-    const saved = localStorage.getItem('eau_' + new Date().toISOString().split('T')[0])
-    if (saved) setVerres(parseInt(saved))
+    const eau = localStorage.getItem('eau_' + today)
+    if (eau) setVerres(parseInt(eau))
+    const seance = localStorage.getItem('seance_' + today)
+    if (seance) setSeanceFaite(true)
   }, [])
+
+  const toggleSeance = (e) => {
+    e.stopPropagation()
+    if (seanceFaite) {
+      localStorage.removeItem('seance_' + today)
+      setSeanceFaite(false)
+    } else {
+      localStorage.setItem('seance_' + today, 'true')
+      setSeanceFaite(true)
+    }
+  }
 
   const perdu = dernierPoids && poidsDepart ? (dernierPoids - poidsDepart).toFixed(1) : null
   const reste = dernierPoids ? (dernierPoids - OBJECTIF).toFixed(1) : null
@@ -100,21 +114,39 @@ export default function App() {
           <div className="bottom-cell-sub">verres aujourd'hui</div>
           <div className="bottom-cell-arrow">Ajouter →</div>
         </div>
+
         <div className="bottom-cell" onClick={() => setPage('sommeil')}>
           <div className="bottom-cell-label">Sommeil</div>
           <div className="bottom-cell-value">— <span className="bottom-cell-unit">h</span></div>
           <div className="bottom-cell-sub">cette nuit</div>
           <div className="bottom-cell-arrow">Enregistrer →</div>
         </div>
+
         <div className="bottom-cell">
-          <div className="bottom-cell-label">Cette semaine</div>
-          <div className="bottom-cell-days">
-            {joursSemaine.map((j, i) => (
-              <div key={i} className={`bottom-cell-day ${i === 0 ? 'done' : ''}`}>{j}</div>
-            ))}
-          </div>
-          <div className="bottom-cell-arrow">1 / 5 séances</div>
+  <div className="bottom-cell-label">Cette semaine</div>
+  <div className="bottom-cell-days">
+    {['L', 'M', 'M', 'J', 'V'].map((j, i) => {
+      const jourIndex = i + 1
+      const estAujourdhui = aujourdhui === jourIndex
+      const estFait = estAujourdhui ? seanceFaite : false
+      return (
+        <div key={i} className={`bottom-cell-day ${estFait ? 'done' : ''}`}>
+          {j}
         </div>
+      )
+    })}
+  </div>
+  <div className="bottom-cell-sub" style={{color: seanceFaite ? 'var(--green)' : 'var(--text3)'}}>
+    {seanceFaite ? 'Séance du jour validée' : 'Séance non validée'}
+  </div>
+  <button
+    className="btn"
+    style={{marginTop: '1rem', fontSize: '10px', padding: '0.5rem 1rem'}}
+    onClick={toggleSeance}
+  >
+    {seanceFaite ? 'Annuler' : 'Valider la séance'}
+  </button>
+</div>
       </div>
     </div>
   )

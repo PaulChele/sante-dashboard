@@ -17,8 +17,7 @@ export default function Sommeil({ onBack }) {
     const depuis = new Date()
     depuis.setDate(depuis.getDate() - 30)
     const { data: rows } = await supabase
-      .from('sleep')
-      .select('*')
+      .from('sleep').select('*')
       .gte('date', depuis.toISOString().split('T')[0])
       .order('date', { ascending: true })
     if (rows) {
@@ -73,7 +72,7 @@ export default function Sommeil({ onBack }) {
       <button className="module-back" onClick={onBack}>← Retour</button>
 
       <div className="module-header">
-        <div className="module-title">😴 Sommeil</div>
+        <div className="module-title">Sommeil</div>
         <div className="module-sub">Objectif : 8h par nuit</div>
       </div>
 
@@ -82,7 +81,7 @@ export default function Sommeil({ onBack }) {
           <div className="stats-grid" style={{gridTemplateColumns: 'repeat(3, 1fr)'}}>
             <div className="stat-box">
               <div className="stat-box-label">Dernière nuit</div>
-              <div className="stat-box-value" style={{color: derniere.duree >= 7 ? '#4ade80' : '#fb923c'}}>{derniere.duree}h</div>
+              <div className="stat-box-value" style={{color: derniere.duree >= 7 ? 'var(--green)' : 'var(--orange)'}}>{derniere.duree}h</div>
               <div className="stat-box-sub">{derniere.duree >= 7 ? 'Bonne nuit' : 'Insuffisant'}</div>
             </div>
             <div className="stat-box">
@@ -102,10 +101,10 @@ export default function Sommeil({ onBack }) {
             <div className="chart-wrap">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data}>
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#444' }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[4, 10]} tick={{ fontSize: 11, fill: '#444' }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ background: '#141414', border: '1px solid #2a2a2a', borderRadius: 8, fontSize: 12, color: '#f0f0f0' }} />
-                  <Line type="monotone" dataKey="duree" stroke="#a78bfa" strokeWidth={2} dot={{ fill: '#a78bfa', r: 3 }} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text3)' }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[4, 10]} tick={{ fontSize: 11, fill: 'var(--text3)' }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text)' }} />
+                  <Line type="monotone" dataKey="duree" stroke="var(--blue)" strokeWidth={2} dot={{ fill: 'var(--blue)', r: 3 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -116,7 +115,7 @@ export default function Sommeil({ onBack }) {
             {[...data].reverse().map((entry, i) => (
               <div key={i} className="hist-item">
                 <span className="hist-date">{entry.date}</span>
-                <span className="hist-value">{entry.duree}h {entry.notes && <span style={{color:'#555', fontWeight:400, fontSize:'0.8rem'}}>— {entry.notes}</span>}</span>
+                <span className="hist-value">{entry.duree}h {entry.notes && <span style={{color:'var(--text2)', fontWeight:400, fontSize:'12px'}}>— {entry.notes}</span>}</span>
                 <button className="btn-danger" onClick={() => supprimer(entry.id)}>Suppr.</button>
               </div>
             ))}
@@ -125,7 +124,7 @@ export default function Sommeil({ onBack }) {
       )}
 
       {!loading && data.length === 0 && (
-        <div className="empty">Aucune donnée — enregistrez votre première nuit !</div>
+        <div className="empty">Aucune donnée — enregistrez votre première nuit</div>
       )}
 
       <div className="card">
@@ -142,16 +141,16 @@ export default function Sommeil({ onBack }) {
         </div>
 
         {dureeCalculee && (
-          <div className="duree-badge">⏱️ Durée : <strong>{dureeCalculee}h</strong></div>
+          <div className="duree-badge">Durée calculée : {dureeCalculee}h</div>
         )}
 
-        <div className="form-group" style={{marginTop: '0.75rem', marginBottom: '0.75rem'}}>
+        <div className="form-group" style={{marginTop: '1rem', marginBottom: '1rem'}}>
           <label className="form-label">Note (optionnel)</label>
           <input type="text" placeholder="ex: nuit agitée..." value={note} onChange={e => setNote(e.target.value)} />
         </div>
 
         <button className="btn" onClick={sauvegarder} disabled={saving}>
-          {saving ? 'Enregistrement...' : 'Enregistrer'}
+          {saving ? '...' : 'Enregistrer'}
         </button>
       </div>
     </div>

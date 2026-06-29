@@ -24,14 +24,14 @@ export default function Eau({ onBack }) {
       <button className="module-back" onClick={onBack}>← Retour</button>
 
       <div className="module-header">
-        <div className="module-title">💧 Hydratation</div>
+        <div className="module-title">Hydratation</div>
         <div className="module-sub">Objectif : {OBJECTIF} verres (2L) par jour</div>
       </div>
 
       <div className="stats-grid" style={{gridTemplateColumns: 'repeat(3, 1fr)'}}>
         <div className="stat-box">
           <div className="stat-box-label">Aujourd'hui</div>
-          <div className="stat-box-value" style={{color: '#3b82f6'}}>{verres}</div>
+          <div className="stat-box-value" style={{color: 'var(--blue)'}}>{verres}</div>
           <div className="stat-box-sub">verres</div>
         </div>
         <div className="stat-box">
@@ -41,18 +41,18 @@ export default function Eau({ onBack }) {
         </div>
         <div className="stat-box">
           <div className="stat-box-label">Progression</div>
-          <div className="stat-box-value" style={{color: verres >= OBJECTIF ? '#4ade80' : '#fb923c'}}>{pct}%</div>
-          <div className="stat-box-sub">{verres >= OBJECTIF ? '✅ Objectif atteint !' : `${OBJECTIF - verres} verres restants`}</div>
+          <div className="stat-box-value" style={{color: verres >= OBJECTIF ? 'var(--green)' : 'var(--orange)'}}>{pct}%</div>
+          <div className="stat-box-sub">{verres >= OBJECTIF ? 'Objectif atteint' : `${OBJECTIF - verres} restants`}</div>
         </div>
       </div>
 
       <div className="prog-card">
         <div className="prog-header">
           <div className="prog-label">Progression du jour</div>
-          <div className="prog-pct" style={{color: '#3b82f6'}}>{pct}%</div>
+          <div className="prog-pct" style={{color: 'var(--blue)'}}>{pct}%</div>
         </div>
         <div className="prog-track">
-          <div className="prog-fill" style={{width: `${Math.min(pct, 100)}%`, background: '#3b82f6'}} />
+          <div className="prog-fill" style={{width: `${Math.min(pct, 100)}%`, background: 'var(--blue)'}} />
         </div>
       </div>
 
@@ -60,16 +60,12 @@ export default function Eau({ onBack }) {
         <div className="card-title">Cliquez pour ajouter un verre</div>
         <div className="eau-grid">
           {Array.from({length: OBJECTIF}).map((_, i) => (
-            <div
-              key={i}
-              className={`eau-verre ${i < verres ? 'plein' : ''}`}
-              onClick={() => toggle(i)}
-            >
+            <div key={i} className={`eau-verre ${i < verres ? 'plein' : ''}`} onClick={() => toggle(i)}>
               {i < verres ? '💧' : ''}
             </div>
           ))}
         </div>
-        <div style={{textAlign: 'center', marginTop: '1rem'}}>
+        <div style={{marginTop: '1rem'}}>
           <button className="btn" onClick={() => { setVerres(0); localStorage.setItem('eau_' + TODAY, 0) }}>
             Réinitialiser
           </button>

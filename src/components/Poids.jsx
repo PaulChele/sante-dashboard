@@ -15,10 +15,7 @@ export default function Poids({ onBack }) {
 
   const fetchData = async () => {
     setLoading(true)
-    const { data: rows } = await supabase
-      .from('weights')
-      .select('*')
-      .order('date', { ascending: true })
+    const { data: rows } = await supabase.from('weights').select('*').order('date', { ascending: true })
     if (rows) {
       setData(rows.map(r => ({
         date: new Date(r.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }),
@@ -32,10 +29,7 @@ export default function Poids({ onBack }) {
   const sauvegarder = async () => {
     if (!poids) return
     setSaving(true)
-    await supabase.from('weights').insert({
-      date: date,
-      weight: parseFloat(poids),
-    })
+    await supabase.from('weights').insert({ date, weight: parseFloat(poids) })
     setPoids('')
     await fetchData()
     setSaving(false)
@@ -49,7 +43,7 @@ export default function Poids({ onBack }) {
   const derniere = data[data.length - 1]
   const premiere = data[0]
   const perdu = derniere && premiere ? (derniere.poids - premiere.poids).toFixed(1) : null
-  const resteAPerdre = derniere ? (derniere.poids - OBJECTIF).toFixed(1) : null
+  const reste = derniere ? (derniere.poids - OBJECTIF).toFixed(1) : null
   const progression = derniere && premiere && premiere.poids !== OBJECTIF
     ? Math.round(((premiere.poids - derniere.poids) / (premiere.poids - OBJECTIF)) * 100)
     : 0
@@ -59,8 +53,8 @@ export default function Poids({ onBack }) {
       <button className="module-back" onClick={onBack}>← Retour</button>
 
       <div className="module-header">
-        <div className="module-title">⚖️ Suivi du poids</div>
-        <div className="module-sub">Pesée chaque lundi matin à jeun • Objectif : {OBJECTIF} kg</div>
+        <div className="module-title">Poids</div>
+        <div className="module-sub">Pesée chaque lundi matin à jeun · Objectif {OBJECTIF} kg</div>
       </div>
 
       {loading ? (
@@ -82,12 +76,12 @@ export default function Poids({ onBack }) {
                 </div>
                 <div className="stat-box">
                   <div className="stat-box-label">Perdu</div>
-                  <div className="stat-box-value" style={{color: perdu < 0 ? '#4ade80' : '#ef4444'}}>{perdu}</div>
+                  <div className="stat-box-value" style={{color: perdu < 0 ? 'var(--green)' : 'var(--red)'}}>{perdu}</div>
                   <div className="stat-box-sub">kg depuis le début</div>
                 </div>
                 <div className="stat-box">
                   <div className="stat-box-label">Reste</div>
-                  <div className="stat-box-value" style={{color: '#fb923c'}}>{resteAPerdre}</div>
+                  <div className="stat-box-value" style={{color: 'var(--orange)'}}>{reste}</div>
                   <div className="stat-box-sub">kg avant objectif</div>
                 </div>
               </div>
@@ -102,28 +96,7 @@ export default function Poids({ onBack }) {
                   <div className="prog-fill" style={{width: `${Math.min(Math.max(0, progression), 100)}%`}} />
                 </div>
               </div>
-            </>
-          )}
 
-          <div className="card">
-            <div className="card-title">+ Ajouter une pesée</div>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Date</label>
-                <input type="date" value={date} onChange={e => setDate(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Poids (kg)</label>
-                <input type="number" placeholder="90.0" value={poids} onChange={e => setPoids(e.target.value)} />
-              </div>
-              <button className="btn" onClick={sauvegarder} disabled={saving}>
-                {saving ? '...' : 'Enregistrer'}
-              </button>
-            </div>
-          </div>
-
-          {data.length > 0 && (
-            <>
               <div className="card">
                 <div className="card-title">Courbe de poids</div>
                 <div className="chart-wrap">
@@ -131,15 +104,15 @@ export default function Poids({ onBack }) {
                     <AreaChart data={data}>
                       <defs>
                         <linearGradient id="colorPoids" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#4ade80" stopOpacity={0.15}/>
-                          <stop offset="95%" stopColor="#4ade80" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="var(--green)" stopOpacity={0.15}/>
+                          <stop offset="95%" stopColor="var(--green)" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#555' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 11, fill: '#555' }} axisLine={false} tickLine={false} domain={['auto', 'auto']} tickFormatter={v => `${v} kg`} />
-                      <Tooltip contentStyle={{ background: '#1c1c1c', border: '1px solid #2e2e2e', borderRadius: 8, fontSize: 12, color: '#f0f0f0' }} formatter={v => [`${v} kg`, 'Poids']} />
-                      <ReferenceLine y={OBJECTIF} stroke="#fb923c" strokeDasharray="6 3" label={{ value: `Objectif ${OBJECTIF}kg`, fill: '#fb923c', fontSize: 11, position: 'right' }} />
-                      <Area type="monotone" dataKey="poids" stroke="#4ade80" strokeWidth={2.5} fill="url(#colorPoids)" dot={{ fill: '#4ade80', r: 4, strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text3)' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: 'var(--text3)' }} axisLine={false} tickLine={false} domain={['auto', 'auto']} tickFormatter={v => `${v} kg`} />
+                      <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text)' }} formatter={v => [`${v} kg`, 'Poids']} />
+                      <ReferenceLine y={OBJECTIF} stroke="var(--orange)" strokeDasharray="4 3" />
+                      <Area type="monotone" dataKey="poids" stroke="var(--green)" strokeWidth={2} fill="url(#colorPoids)" dot={{ fill: 'var(--green)', r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -157,6 +130,23 @@ export default function Poids({ onBack }) {
               </div>
             </>
           )}
+
+          <div className="card">
+            <div className="card-title">Ajouter une pesée</div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Date</label>
+                <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Poids (kg)</label>
+                <input type="number" placeholder="90.0" value={poids} onChange={e => setPoids(e.target.value)} />
+              </div>
+              <button className="btn" onClick={sauvegarder} disabled={saving}>
+                {saving ? '...' : 'Enregistrer'}
+              </button>
+            </div>
+          </div>
         </>
       )}
     </div>
